@@ -1,13 +1,14 @@
 package com.costinarj.bankingapplicationsystem.service;
 
 import com.costinarj.bankingapplicationsystem.entity.Account;
+import com.costinarj.bankingapplicationsystem.exception.InvalidAmountException;
+import com.costinarj.bankingapplicationsystem.exception.UserAccountNotFoundException;
 import com.costinarj.bankingapplicationsystem.repository.AccountRepository;
 import com.costinarj.bankingapplicationsystem.service.data.AccountDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import javax.security.auth.login.AccountNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -41,7 +42,7 @@ public class AccountServiceImpl implements AccountService {
 
         if (account.isEmpty()) {
             log.error("Account not found with id={}", id);
-            throw new RuntimeException("Account not found");
+            throw new UserAccountNotFoundException("Account not found");
         }
 
         return accountServiceHelper.toAccountDto(account.get());
@@ -51,7 +52,7 @@ public class AccountServiceImpl implements AccountService {
     public AccountDto depositAmount(Long id, double amount) {
         if (amount <= 0) {
             log.error("Amount must be greater than zero");
-            throw new RuntimeException("Amount must be greater than zero");
+            throw new InvalidAmountException("Amount must be greater than zero");
         }
 
         Account account = accountRepository.findById(id)
@@ -70,18 +71,15 @@ public class AccountServiceImpl implements AccountService {
     public AccountDto withdrawAmount(Long id, double amount) {
         if (amount <= 0) {
             log.error("Amount must be greater than zero");
-            throw new RuntimeException("Amount must be greater than zero");
+            throw new InvalidAmountException("Amount must be greater than zero");
         }
 
         Account account = accountRepository.findById(id)
-                .orElseThrow(() -> {
-                    log.error("Account not found with id={}", id);
-                    return new RuntimeException("Account not found");
-                });
+                .orElseThrow(() -> new UserAccountNotFoundException("Account not found with id=" + id));
 
         if (account.getBalance() < amount) {
             log.error("Insufficient amount");
-            throw new RuntimeException("Insufficient amount");
+            throw new InvalidAmountException("Insufficient amount");
         }
 
         account.setBalance(account.getBalance() - amount);
@@ -110,7 +108,7 @@ public class AccountServiceImpl implements AccountService {
 
         if (account.isEmpty()) {
             log.error("Account not found with id={}", id);
-            throw new RuntimeException("Account not found");
+            throw new UserAccountNotFoundException("Account not found");
         }
 
         accountRepository.deleteById(id);

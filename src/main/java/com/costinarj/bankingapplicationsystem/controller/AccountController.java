@@ -1,5 +1,6 @@
 package com.costinarj.bankingapplicationsystem.controller;
 
+import com.costinarj.bankingapplicationsystem.exception.UserAccountNotFoundException;
 import com.costinarj.bankingapplicationsystem.service.AccountService;
 import com.costinarj.bankingapplicationsystem.service.data.AccountDto;
 import org.slf4j.Logger;
@@ -9,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.security.auth.login.AccountNotFoundException;
 import java.util.List;
 import java.util.Map;
 
@@ -32,7 +34,7 @@ public class AccountController {
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<AccountDto> getAccountById(@PathVariable Long id) {
+    public ResponseEntity<AccountDto> getAccountById(@PathVariable Long id) throws AccountNotFoundException {
         log.info("Getting account information..");
         AccountDto accountDto = accountService.getAccountById(id);
 
@@ -65,7 +67,7 @@ public class AccountController {
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<String> deleteAccount(@PathVariable Long id) {
+    public ResponseEntity<String> deleteAccount(@PathVariable Long id) throws AccountNotFoundException {
         log.info("Deleting account information..");
         accountService.deleteAccount(id);
 

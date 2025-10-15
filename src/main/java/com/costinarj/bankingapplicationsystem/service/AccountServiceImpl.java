@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.security.auth.login.AccountNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -86,6 +88,32 @@ public class AccountServiceImpl implements AccountService {
         Account savedAccount = accountRepository.save(account);
 
         return accountServiceHelper.toAccountDto(savedAccount);
+    }
+
+    @Override
+    public List<AccountDto> getAllAccounts() {
+        List<AccountDto> accountDtoList = new ArrayList<>();
+        List<Account> accounts = accountRepository.findAll();
+
+        if (!accounts.isEmpty()) {
+            for (Account account : accounts) {
+                accountDtoList.add(accountServiceHelper.toAccountDto(account));
+            }
+        }
+
+        return accountDtoList;
+    }
+
+    @Override
+    public void deleteAccount(Long id) {
+        Optional<Account> account = accountRepository.findById(id);
+
+        if (account.isEmpty()) {
+            log.error("Account not found with id={}", id);
+            throw new RuntimeException("Account not found");
+        }
+
+        accountRepository.deleteById(id);
     }
 
 }
